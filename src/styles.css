@@ -1,0 +1,112 @@
+/* =============================================================
+   Theme: change these variables to restyle the whole app.
+   ============================================================= */
+:root {
+  --green: #1d6b52;
+  --green-dark: #144d3b;
+  --sun: #ffd166;
+  --ink: #1f2a2e;
+  --muted: #5d6b70;
+  --paper: #f7f5ef;
+  --card: #ffffff;
+  --line: #e3e0d6;
+  --danger: #b3261e;
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--paper); line-height: 1.5; }
+h1, h2, h3 { line-height: 1.15; margin: 0; }
+button, input, select, textarea { font: inherit; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Hero ---------- */
+.hero { background: var(--green); color: #fff; padding: 40px 20px 72px; }
+.hero-inner { max-width: 1120px; margin: 0 auto; }
+.eyebrow { margin: 0 0 8px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #cfe8de; }
+.hero h1 { font-size: clamp(34px, 5vw, 54px); letter-spacing: -0.02em; }
+.tagline { margin: 6px 0 22px; font-size: 18px; color: #e2f2ec; }
+.problem { background: rgba(255,255,255,.1); border-left: 4px solid var(--sun); border-radius: 10px; padding: 14px 18px; max-width: 760px; }
+.problem h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--sun); margin-bottom: 6px; }
+.problem p { margin: 0 0 6px; }
+.problem .for { color: #e2f2ec; font-size: 15px; }
+.todo { background: var(--sun); color: var(--ink); padding: 0 4px; border-radius: 4px; }
+.pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,.14); font-size: 14px; font-weight: 600; }
+.pill .dot { width: 9px; height: 9px; border-radius: 50%; background: #c6cdd0; }
+.pill.ok .dot { background: #7ee2a8; }
+.pill.warn .dot { background: var(--sun); }
+
+/* ---------- Layout ---------- */
+.layout { max-width: 1120px; margin: -44px auto 0; padding: 0 20px 40px; display: grid; grid-template-columns: 1fr 1.35fr; gap: 20px; align-items: start; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: 0 6px 20px rgba(31,42,46,.06); min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.card-head h2 { font-size: 20px; }
+.count { font-size: 13px; font-weight: 700; color: var(--green); background: #e6f2ec; padding: 3px 10px; border-radius: 999px; }
+.start-here { grid-column: 1; }
+.chat { grid-column: 2; grid-row: span 2; display: flex; flex-direction: column; min-height: 560px; }
+.resources { grid-column: 1; }
+.skills { grid-column: 1 / -1; }
+
+button { border: 0; border-radius: 10px; padding: 10px 16px; background: var(--green); color: #fff; font-weight: 700; cursor: pointer; }
+button:hover { background: var(--green-dark); }
+button:disabled { opacity: .55; cursor: wait; }
+button.ghost { background: transparent; color: var(--green); border: 1px solid var(--green); padding: 6px 12px; }
+input, select, textarea { border: 1px solid #cfd5d2; border-radius: 10px; padding: 10px 12px; background: #fff; min-width: 0; }
+input:focus, select:focus, textarea:focus { outline: 3px solid rgba(29,107,82,.25); border-color: var(--green); }
+
+/* ---------- Start here ---------- */
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.checklist li { display: flex; gap: 10px; align-items: flex-start; font-size: 15px; }
+.checklist .box { flex: 0 0 22px; height: 22px; border: 2px solid #b9c4bf; border-radius: 6px; display: grid; place-items: center; font-size: 14px; color: #fff; }
+.checklist li.done { color: var(--muted); text-decoration: line-through; }
+.checklist li.done .box { background: var(--green); border-color: var(--green); }
+
+/* ---------- Chat ---------- */
+.skill-pick { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--muted); }
+.chat-log { list-style: none; margin: 0; padding: 4px; flex: 1; overflow-y: auto; max-height: 520px; display: flex; flex-direction: column; gap: 10px; }
+.chat-log .empty { color: var(--muted); font-size: 15px; padding: 8px 2px; }
+.bubble { max-width: 88%; padding: 10px 14px; border-radius: 14px; }
+.bubble p { margin: 0; white-space: pre-wrap; }
+.bubble small { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.bubble.user { align-self: flex-end; background: var(--green); color: #fff; border-bottom-right-radius: 4px; }
+.bubble.assistant { align-self: flex-start; background: #f1efe7; border-bottom-left-radius: 4px; }
+.bubble.thinking { color: var(--muted); font-style: italic; }
+.chat-form { display: flex; gap: 10px; margin-top: 14px; }
+.chat-form input { flex: 1; }
+.error { color: var(--danger); font-weight: 600; margin: 10px 0 0; }
+
+/* ---------- Resources ---------- */
+.filters { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+.add-form { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; padding: 12px; background: #f6f9f7; border-radius: 10px; }
+.add-form textarea, .add-form button { grid-column: 1 / -1; }
+.notice { margin: 10px 0 0; padding: 8px 12px; border-radius: 8px; font-weight: 600; }
+.notice.ok { background: #e6f2ec; color: var(--green-dark); }
+.notice.error { background: #fde8e7; color: var(--danger); }
+.result-count { margin: 12px 0 6px; font-size: 13px; color: var(--muted); }
+.resource-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-height: 430px; overflow-y: auto; }
+.resource-list li { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.resource-list h3 { font-size: 16px; margin: 4px 0 2px; }
+.resource-list p { margin: 0; font-size: 14px; }
+.resource-list small { color: var(--muted); font-size: 12px; }
+.tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--green-dark); background: #e6f2ec; padding: 2px 8px; border-radius: 999px; }
+
+/* ---------- Skills ---------- */
+.skill-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.skill-grid li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fcfbf8; }
+.skill-grid code { font-weight: 700; color: var(--green-dark); }
+.skill-grid p { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+.tool-badge { margin-left: 8px; font-size: 11px; font-weight: 700; background: var(--sun); padding: 2px 7px; border-radius: 999px; }
+.hint { margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+
+.footer { text-align: center; color: var(--muted); font-size: 13px; padding: 10px 20px 30px; }
+
+/* ---------- Phones ---------- */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .start-here, .chat, .resources, .skills { grid-column: 1; grid-row: auto; }
+  .chat { min-height: 460px; }
+  .filters { grid-template-columns: 1fr; }
+  .add-form { grid-template-columns: 1fr; }
+}
