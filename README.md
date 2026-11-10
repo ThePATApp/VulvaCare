@@ -47,6 +47,25 @@ It runs on day one with no key and no database (sample data + mock AI), so you c
 
 ---
 
+## Upload this project to GitHub
+
+1. Create a new, empty repository on GitHub. Do not initialize it with a README, license, or `.gitignore`; this project already has those files and Git history.
+2. From this project folder, run `git remote -v` to check the destination. If there is no `origin`, add the URL for your repository:
+
+  ```bash
+  git remote add origin https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git
+  ```
+
+3. Commit any changes you want to upload, then push the `main` branch:
+
+    ```bash
+    git add .
+    git commit -m "Describe your project changes"
+    git push -u origin main
+    ```
+
+  If Git says there is nothing to commit, skip the commit command and push. Check that `origin` points to the repository you intend to publish before pushing. Never commit API keys, `.env` files, or other secrets.
+
 ## Get started on Replit (10 minutes)
 
 ### 1. Get the code into Replit
@@ -142,6 +161,15 @@ answer goes back to React
 ---
 
 ## The database
+
+### What community resources are for
+Community resources are local programs and services that visitors can search for, such as food assistance, clinics, housing help, tutoring, or legal aid. The directory displays these listings, and the `resource-finder` skill searches the same records to answer questions like "Where can I find a nearby tutor?" The agent is instructed to use only matching database results, so missing or outdated listings can leave someone without a useful referral; invented details are never an acceptable substitute.
+
+The app's sample listings are fictional examples, not real referrals. Replace them with real services for the community your team serves, and verify contact details and hours with the provider before publishing. Add only information intended for public use, never a visitor's personal information.
+
+Each listing needs a **name**, one supported **category**, and a clear **description** of what the service offers. Add a **neighborhood** when location matters; **hours**, **phone**, **website**, **address**, and **languages** help visitors decide whether a service fits. The app's Add Resource form collects name, category, description, neighborhood, hours, phone, and website; address and languages can also be stored through the API or database. Categories are `Food`, `Health`, `Housing`, `Youth`, `Education`, `Jobs`, `Seniors`, `Legal Aid`, and `Environment`.
+
+You can add a listing with **+ Add one** in the Community resources section. To replace the starter examples, edit `server/db/seed-data.js`; seed data is inserted only when the resources table is empty. For live use, plan who on the team will verify and update listings as providers change their services.
 
 | Table | What's in it |
 |---|---|
