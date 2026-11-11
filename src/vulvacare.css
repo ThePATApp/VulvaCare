@@ -72,19 +72,44 @@ body:has(.vc) {
   width: 100%;
 }
 
+/*
+ * hero.png is a 941×1672 portrait. The top ~12% and the left half are
+ * solid #8537E7; her hair starts near x=52%, y=14%, and her face occupies
+ * roughly x=55–85%, y=16–36%. Her arms sit around y=50–75%, and the bottom
+ * quarter fades to lavender. Cover keeps that framing on a phone-shaped
+ * hero. Wider heroes pin the same image to the right at its own aspect
+ * ratio so the crop cannot slice through her face.
+ */
 .vc-hero {
   position: relative;
-  background: #8537E7;
-  color: #fff;
-  padding: 12px 16px 0;
   isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: #8537E7;
+  color: #fff;
+  padding: 20px 20px 22px;
+}
+
+/* Full-bleed portrait. The layer keeps the image's own aspect ratio and
+   uses cover, so her face is never sliced to fit a taller or wider hero.
+   Anything the portrait doesn't reach stays the #8537E7 fallback. */
+.vc-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  aspect-ratio: 941 / 1672;
+  background: #8537E7 url("/images/hero.png") center / cover no-repeat;
+  pointer-events: none;
 }
 
 .vc-header {
   position: relative;
-  z-index: 2;
   max-width: var(--max);
-  margin: 0 auto 6px;
+  margin: 0 auto;
 }
 
 .vc-logo-wrap {
@@ -92,94 +117,90 @@ body:has(.vc) {
   align-items: center;
   background: #fff;
   border-radius: 16px;
-  padding: 6px 12px;
+  padding: 7px 12px 7px 10px;
   max-width: min(100%, 360px);
 }
 
 .vc-logo {
   display: block;
   width: auto;
-  height: clamp(42px, 10.4vw, 64px);
+  height: clamp(34px, 9vw, 48px);
   max-width: 100%;
   object-fit: contain;
 }
 
 .vc-hero-grid {
   position: relative;
-  z-index: 1;
   max-width: var(--max);
-  margin: 0 auto;
-  display: grid;
-  align-content: start;
-  row-gap: 8px;
-  min-height: clamp(280px, 88vw, 520px);
-  padding-bottom: 12px;
+  margin: 16px 0 0;
 }
 
-.vc-eyebrow,
-.vc-hero h1,
-.vc-hero-lede {
-  position: relative;
-  z-index: 1;
-  justify-self: start;
+.vc-hero-grid > * {
   text-align: left;
 }
 
 .vc-eyebrow {
   margin: 0;
-  max-width: 24rem;
-  font-size: 12px;
+  max-width: 18.8em;
+  font-size: clamp(11px, 2.8vw, 13px);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  line-height: 1.45;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #fff;
 }
 
-.vc-hero h1 {
-  color: #fff;
-  font-size: clamp(26px, 7.2vw, 56px);
-  font-weight: 750;
-  line-height: 1.08;
-  max-width: min(68%, 11em);
-}
-
-.vc-hero-lede {
-  margin: 0;
-  max-width: min(64%, 24rem);
-  font-size: clamp(15px, 3.5vw, 20px);
-  line-height: 1.4;
-  color: #fff;
-}
-
-.vc-hero-art {
-  position: absolute;
-  z-index: 0;
-  right: 0;
-  bottom: 0;
-  width: min(100%, 640px);
-  margin: 0;
-  pointer-events: none;
-}
-
-.vc-hero-art img {
+.vc-eyebrow::after {
+  content: "";
   display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  object-position: right bottom;
+  width: 36px;
+  height: 3px;
+  margin-top: 12px;
+  border-radius: 2px;
+  background: #D1108D;
+}
+
+.vc-hero h1 {
+  margin-top: 14px;
+  max-width: 6.35em;
+  color: #fff;
+  font-size: clamp(22px, 6.9vw, 34px);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+}
+
+.vc-nowrap {
+  white-space: nowrap;
+}
+
+.vc-hero .vc-hero-lede {
+  margin-top: 12px;
+  max-width: min(13.5em, calc(50vw - 6px));
+  font-size: clamp(14.5px, 3.55vw, 15.5px);
+  font-weight: 500;
+  line-height: 1.35;
+  color: #fff;
+  text-wrap: pretty;
 }
 
 .vc main {
-  max-width: var(--narrow);
-  margin: 0 auto;
-  padding: 0 16px 40px;
+  padding-bottom: 40px;
 }
 
 .vc-checker {
   position: relative;
   z-index: 1;
-  margin-top: clamp(-132px, -18vw, -72px);
+  width: 100%;
+  max-width: var(--narrow);
+  margin: 22px 0 0;
   scroll-margin-top: 16px;
+}
+
+.vc-results {
+  max-width: var(--narrow);
+  margin-inline: auto;
+  padding-inline: 16px;
 }
 
 .vc-checker-card,
@@ -196,13 +217,15 @@ body:has(.vc) {
 }
 
 .vc-checker-card {
-  padding: 14px 16px 16px;
-  background: rgba(255, 252, 248, 0.92);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: 1px solid #eadff8;
-  border-radius: 20px;
-  box-shadow: 0 14px 34px rgba(52, 49, 58, 0.12);
+  padding: 22px 20px 20px;
+  background-color: rgba(255, 252, 248, 0.88);
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 22px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 18px 44px rgba(48, 16, 96, 0.18);
 }
 
 .vc-checker h2,
@@ -221,10 +244,25 @@ body:has(.vc) {
   line-height: 1.45;
 }
 
+.vc .vc-checker h2 {
+  font-size: clamp(22px, 5.6vw, 26px);
+  font-weight: 750;
+}
+
+.vc-checker .vc-lede {
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
 .vc-checker form {
   display: grid;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.vc-checker form .vc-btn-primary {
+  margin-top: 6px;
 }
 
 .vc-checker label {
@@ -238,11 +276,11 @@ body:has(.vc) {
 .vc .vc-checker textarea:focus-visible,
 .vc .vc-checker textarea:active {
   width: 100%;
-  min-height: 92px;
+  min-height: 84px;
   resize: vertical;
-  border: 1px solid #d7c8ee;
+  border: 1px solid #cdb6f0;
   border-radius: 14px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   background: #fff;
   color: var(--charcoal);
   line-height: 1.45;
@@ -267,7 +305,12 @@ body:has(.vc) {
 
 .vc-hint {
   font-size: 14px;
+  line-height: 1.35;
   color: #5c5863;
+}
+
+.vc-hint + .vc-hint {
+  margin-top: -6px;
 }
 
 .vc-error {
@@ -605,79 +648,78 @@ body:has(.vc) {
   font-size: 16px;
 }
 
-@media (max-width: 380px) {
-  .vc-hero-grid {
-    min-height: 348px;
+@media (max-width: 400px) {
+  /* The copy makes the hero taller than the portrait. Scale the
+     portrait up from the left so it still covers the card, and keep
+     the type inside the purple field to the left of her face. */
+  .vc-hero::before {
+    width: 124%;
+    left: -8%;
   }
 
   .vc-hero h1 {
-    max-width: min(66%, 10em);
+    font-size: clamp(20px, 6.5vw, 23px);
+    max-width: 6.5em;
   }
 
-  .vc-hero-lede {
-    max-width: min(62%, 16rem);
+  .vc-hero .vc-hero-lede {
+    max-width: 9.6em;
   }
 }
 
+@media (max-width: 360px) {
+  .vc-hero {
+    padding-inline: 16px;
+  }
+}
+
+/*
+ * Past 768px the hero is wider than the portrait, so cover would crop her
+ * face or slide it under the copy. Size the image from its height, pin it
+ * to the right edge, and let the #8537E7 fallback continue the purple field.
+ */
 @media (min-width: 768px) {
   .vc-hero {
-    padding: 20px 32px 0;
+    padding: 28px 40px 36px;
   }
 
-  .vc-header {
-    margin-bottom: 12px;
+  .vc-hero::before {
+    left: auto;
+    right: 0;
+    width: auto;
+    height: 100%;
   }
 
   .vc-hero-grid {
-    min-height: clamp(520px, 56vw, 640px);
-    row-gap: 10px;
+    max-width: 34rem;
+    margin-top: 22px;
   }
 
-  .vc-eyebrow,
-  .vc-hero-lede {
-    max-width: min(46%, 28rem);
+  .vc-eyebrow {
+    max-width: 20.5em;
   }
 
   .vc-hero h1 {
-    max-width: min(46%, 12em);
+    max-width: 8.6em;
+    font-size: clamp(40px, 4.8vw, 60px);
   }
 
-  .vc-hero-art {
-    width: min(52%, 640px);
-    right: 0;
-  }
-
-  .vc main {
-    padding-inline: 24px;
+  .vc-hero .vc-hero-lede {
+    max-width: 24rem;
+    font-size: clamp(16px, 1.5vw, 18px);
   }
 
   .vc-checker {
-    margin-top: -80px;
+    max-width: 640px;
+    margin-top: 28px;
   }
 
   .vc-checker-card {
-    padding: 22px 22px 24px;
+    padding: 24px 24px 22px;
   }
 
-  .vc-checker form {
-    gap: 10px;
-    margin-top: 16px;
-  }
-
-  .vc-checker textarea {
-    min-height: 112px;
-  }
-
-  .vc .vc-btn-primary {
-    width: auto;
-    justify-self: start;
-    min-width: 220px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .vc-hero-art {
-    width: min(48%, 680px);
+  .vc-results {
+    padding-inline: 24px;
   }
 }
 
