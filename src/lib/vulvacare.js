@@ -18,6 +18,17 @@ export const STATUS_META = {
   },
 };
 
+const INCOMPLETE_ASSESSMENT = 'The assessment was incomplete. Please try again.';
+const CRISIS_FALLBACK = 'Please contact emergency services or call or text 988.';
+
+export const ANALYZE_ERROR_FALLBACK = 'We could not check those ingredients. Please try again.';
+
+/**
+ * POST /api/analyze requires inputType. The backend stores that value and
+ * does not classify the text itself. Two or more lines count as a list even
+ * when they contain no commas; a single comma-separated line does too.
+ * Anything else is sent as a product name.
+ */
 export function inferInputType(text) {
   const trimmed = String(text ?? '').trim();
   const lines = trimmed.split(/\n/).map((line) => line.trim()).filter(Boolean);
@@ -25,6 +36,76 @@ export function inferInputType(text) {
   const commaParts = trimmed.split(',').map((part) => part.trim()).filter(Boolean);
   if (commaParts.length >= 2) return 'ingredients';
   return 'product';
+}
+
+export function canSubmit(phase) {
+  return phase !== 'loading';
+}
+
+export function prepareAnalyzeRequest(draft) {
+  const validation = validateUserInput(draft);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const originalInput = typeof draft === 'string' ? draft : String(draft ?? '');
+  const inputType = inferInputType(originalInput);
+  return {
+    ok: true,
+    originalInput,
+    inputType,
+    body: { inputType, userInput: originalInput },
+  };
+}
+
+export function interpretAssessment(data) {
+  if (data?.crisis === true) {
+    const message = typeof data.message === 'string' && data.message.trim()
+      ? data.message
+      : CRISIS_FALLBACK;
+    return { kind: 'crisis', message };
+  }
+
+  const saved = typeof data?.id === 'number' && Number.isFinite(data.id);
+  const hasCopy = typeof data?.status === 'string' && data.status
+    && typeof data?.headline === 'string' && data.headline
+    && typeof data?.explanation === 'string' && data.explanation;
+  if (!saved || !hasCopy) {
+    return { kind: 'error', error: INCOMPLETE_ASSESSMENT };
+  }
+
+  return {
+    kind: 'success',
+    unexpected: !Object.hasOwn(STATUS_META, data.status),
+    result: {
+      id: data.id,
+      inputType: data.inputType,
+      status: data.status,
+      headline: data.headline,
+      explanation: data.explanation,
+      flaggedIngredients: Array.isArray(data.flaggedIngredients) ? data.flaggedIngredients : [],
+    },
+  };
+}
+
+export function createRequestGuard() {
+  let current = 0;
+  let busy = false;
+  return {
+    begin() {
+      if (busy) return null;
+      busy = true;
+      current += 1;
+      return current;
+    },
+    isCurrent(id) {
+      return id === current;
+    },
+    settle(id) {
+      if (id === current) busy = false;
+    },
+    invalidate() {
+      current += 1;
+      busy = false;
+    },
+  };
 }
 
 export function validateUserInput(raw) {
@@ -121,9 +202,6 @@ export function checkerReducer(state, action) {
         result: action.result,
         error: '',
         crisisMessage: '',
-        originalInput: typeof action.result?.originalInput === 'string'
-          ? action.result.originalInput
-          : state.originalInput,
       };
     case 'analyze_crisis':
       return {

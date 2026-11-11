@@ -1,17 +1,18 @@
 import { useEffect, useReducer, useRef } from 'react';
 import { api } from './api.js';
-import { mockAnalyze } from './lib/mockAnalyze.js';
 import ProductChecker from './components/vulvacare/ProductChecker.jsx';
 import OriginalInput from './components/vulvacare/OriginalInput.jsx';
 import { EducationalNote, FeedbackPanel, ResultCard } from './components/vulvacare/ResultCard.jsx';
 import { Closing, Hero, SiteFooter } from './components/vulvacare/PageChrome.jsx';
 import {
+  ANALYZE_ERROR_FALLBACK,
+  canSubmit,
   checkerReducer,
-  getStatusMeta,
-  inferInputType,
+  createRequestGuard,
   initialCheckerState,
+  interpretAssessment,
+  prepareAnalyzeRequest,
   scrollBehavior,
-  validateUserInput,
 } from './lib/vulvacare.js';
 import './vulvacare.css';
 
@@ -20,7 +21,7 @@ export default function App() {
   const inputRef = useRef(null);
   const checkerRef = useRef(null);
   const resultRef = useRef(null);
-  const requestIdRef = useRef(0);
+  const requests = useRef(createRequestGuard());
 
   useEffect(() => {
     if (state.phase !== 'success' && state.phase !== 'crisis') return;
@@ -29,58 +30,48 @@ export default function App() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const validation = validateUserInput(state.draft);
-    if (!validation.ok) {
-      dispatch({ type: 'analyze_error', error: validation.error });
+    if (!canSubmit(state.phase)) return;
+
+    const prepared = prepareAnalyzeRequest(state.draft);
+    if (!prepared.ok) {
+      dispatch({ type: 'analyze_error', error: prepared.error });
       return;
     }
 
-    const originalInput = state.draft;
-    const inputType = inferInputType(originalInput);
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-
-    dispatch({ type: 'analyze_start', originalInput, inputType });
+    const requestId = requests.current.begin();
+    if (requestId == null) return;
+    dispatch({
+      type: 'analyze_start',
+      originalInput: prepared.originalInput,
+      inputType: prepared.inputType,
+    });
 
     try {
-      // Frontend-only milestone. Swap mockAnalyze for api.analyze when
-      // POST /api/analyze is connected. Pass the raw draft so the mock can
-      // echo it; validation only rejects blank or oversized input.
-      const data = await mockAnalyze({
-        inputType,
-        userInput: originalInput,
-      });
-      if (requestId !== requestIdRef.current) return;
+      const data = await api.analyze(prepared.body);
+      if (!requests.current.isCurrent(requestId)) return;
 
-      if (data?.crisis) {
-        dispatch({
-          type: 'analyze_crisis',
-          message: data.message || 'Please contact emergency services or call or text 988.',
-        });
+      const outcome = interpretAssessment(data);
+      if (outcome.kind === 'crisis') {
+        requests.current.settle(requestId);
+        dispatch({ type: 'analyze_crisis', message: outcome.message });
         return;
       }
-
-      const hasAssessment = Boolean(data?.status && data.headline && data.explanation);
-      const saved = typeof data?.id === 'number';
-      const mockSample = !saved && typeof data?.originalInput === 'string';
-      if (!hasAssessment || (!saved && !mockSample)) {
-        dispatch({
-          type: 'analyze_error',
-          error: 'The assessment was incomplete. Please try again.',
-        });
+      if (outcome.kind === 'error') {
+        requests.current.settle(requestId);
+        dispatch({ type: 'analyze_error', error: outcome.error });
         return;
       }
-
-      if (getStatusMeta(data.status).unexpected && typeof console !== 'undefined') {
-        console.warn('Unexpected analysis status from API:', data.status);
+      if (outcome.unexpected && typeof console !== 'undefined') {
+        console.warn('Unexpected analysis status from API:', outcome.result.status);
       }
-
-      dispatch({ type: 'analyze_success', result: data });
+      requests.current.settle(requestId);
+      dispatch({ type: 'analyze_success', result: outcome.result });
     } catch (err) {
-      if (requestId !== requestIdRef.current) return;
+      if (!requests.current.isCurrent(requestId)) return;
+      requests.current.settle(requestId);
       dispatch({
         type: 'analyze_error',
-        error: err.message || 'We could not check those ingredients. Please try again.',
+        error: err.message || ANALYZE_ERROR_FALLBACK,
       });
     }
   }
@@ -110,7 +101,7 @@ export default function App() {
   }
 
   function handleReset() {
-    requestIdRef.current += 1;
+    requests.current.invalidate();
     dispatch({ type: 'reset' });
     window.requestAnimationFrame(() => {
       checkerRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
@@ -135,17 +126,18 @@ export default function App() {
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {liveMessage}
       </div>
-      <Hero />
       <main>
-        <ProductChecker
-          draft={state.draft}
-          onDraftChange={(draft) => dispatch({ type: 'set_draft', draft })}
-          onSubmit={handleSubmit}
-          loading={loading}
-          error={checkerError}
-          inputRef={inputRef}
-          formRef={checkerRef}
-        />
+        <Hero>
+          <ProductChecker
+            draft={state.draft}
+            onDraftChange={(draft) => dispatch({ type: 'set_draft', draft })}
+            onSubmit={handleSubmit}
+            loading={loading}
+            error={checkerError}
+            inputRef={inputRef}
+            formRef={checkerRef}
+          />
+        </Hero>
 
         {state.phase === 'success' && state.result ? (
           <div className="vc-results" ref={resultRef}>
