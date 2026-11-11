@@ -17,4 +17,6 @@ export const api = {
   resources: ({ search = '', category = '' } = {}) =>
     request(`/resources?${new URLSearchParams({ search, category })}`),
   addResource: (body) => request('/resources', { method: 'POST', body }),
+  analyze: (body) => request('/analyze', { method: 'POST', body }),
+  feedback: (body) => request('/feedback', { method: 'POST', body }),
 };
