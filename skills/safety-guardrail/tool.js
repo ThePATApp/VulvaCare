@@ -13,15 +13,26 @@ const TOPIC_RULES = [
   { flag: 'legal', pattern: /\b(evict\w*|lawyer|lawsuit|court|custody|immigration|legal|sue|arrest\w*)\b/i },
 ];
 
-export function run({ message }) {
-  let redacted = message;
+function applyPiiRules(text) {
+  let redacted = text;
   const removed = [];
   for (const rule of PII_RULES) {
+    rule.pattern.lastIndex = 0;
     redacted = redacted.replace(rule.pattern, () => {
       removed.push(rule.label);
       return `[${rule.label} removed]`;
     });
   }
+  return { redacted, removed };
+}
+
+// Product checks need redaction only. Topic flags stay on the chat path.
+export function redactPii(text) {
+  return applyPiiRules(text).redacted;
+}
+
+export function run({ message }) {
+  const { redacted, removed } = applyPiiRules(message);
   const flags = TOPIC_RULES.filter((rule) => rule.pattern.test(message)).map((rule) => rule.flag);
   if (removed.length) flags.push('pii-removed');
   return { redacted, flags, removed };

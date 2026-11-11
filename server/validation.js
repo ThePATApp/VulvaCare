@@ -38,5 +38,61 @@ export const ResourceQuery = z.object({
   category: z.union([z.literal(''), z.enum(CATEGORIES)]).optional().default(''),
 });
 
+const INPUT_TYPE_MESSAGE = 'inputType must be "product" or "ingredients".';
+const USER_INPUT_MESSAGE = 'Type a product name or ingredient list first.';
+const STATUS_MESSAGE = 'Status must be lower_concern, caution, or unknown.';
+
+// POST /api/analyze body. Extra keys are stripped, not rejected.
+export const AnalyzeRequest = z.object({
+  inputType: z.enum(['product', 'ingredients'], { message: INPUT_TYPE_MESSAGE }),
+  userInput: z
+    .string({ required_error: USER_INPUT_MESSAGE, invalid_type_error: USER_INPUT_MESSAGE })
+    .trim()
+    .min(1, USER_INPUT_MESSAGE)
+    .max(5000, 'Keep the product name or ingredient list under 5000 characters.'),
+});
+
+const flaggedIngredient = z
+  .string()
+  .trim()
+  .min(1, 'Each flagged ingredient needs a name.')
+  .max(120, 'Each flagged ingredient must be 120 characters or fewer.');
+
+// Gemini structured assessment. Word count is a prompt target, not a Zod rule.
+// unknown and lower_concern list no ingredients. caution lists at least one.
+export const AnalyzeAssessment = z
+  .object({
+    status: z.enum(['lower_concern', 'caution', 'unknown'], { message: STATUS_MESSAGE }),
+    headline: z
+      .string()
+      .trim()
+      .min(1, 'Headline is required.')
+      .max(140, 'Headline must be 140 characters or fewer.')
+      .refine((value) => !/[\r\n]/.test(value), 'Headline must be one short line.'),
+    explanation: z
+      .string()
+      .trim()
+      .min(1, 'Explanation is required.')
+      .max(600, 'Explanation must be 600 characters or fewer.'),
+    flaggedIngredients: z.array(flaggedIngredient).max(30, 'Flag at most 30 ingredients.'),
+  })
+  .superRefine((value, ctx) => {
+    const flagged = value.flaggedIngredients.length > 0;
+    if (value.status === 'caution' && !flagged) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['flaggedIngredients'],
+        message: 'A caution result must list the flagged ingredients.',
+      });
+    }
+    if (value.status !== 'caution' && flagged) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['flaggedIngredients'],
+        message: 'Only a caution result can list flagged ingredients.',
+      });
+    }
+  });
+
 // Turn zod's error into one friendly sentence.
 export const firstError = (result) => result.error.issues[0]?.message ?? 'Invalid request.';

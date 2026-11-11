@@ -6,6 +6,7 @@ import { addResource, listResources } from '../db/resources.js';
 import { runAgent } from '../agent/agent.js';
 import { loadSkills } from '../agent/skills.js';
 import { friendlyAiError } from '../ai/model.js';
+import { analyzeProduct } from '../analyze.js';
 import { ChatRequest, NewResource, ResourceQuery, firstError } from '../validation.js';
 
 // Restaurant analogy: the waiter's routes. Every path here starts with /api.
@@ -51,6 +52,18 @@ api.get('/resources', async (req, res) => {
   } catch (err) {
     console.error('[resources]', err);
     res.status(500).json({ error: 'Could not read the database.' });
+  }
+});
+
+// POST /api/analyze: educational product or ingredient check.
+// Ordinary submissions are not sent through the chat agent or its topic classifier.
+api.post('/analyze', async (req, res) => {
+  try {
+    const outcome = await analyzeProduct(req.body);
+    res.status(outcome.status).json(outcome.body);
+  } catch {
+    console.error('[analyze] unexpected failure');
+    res.status(500).json({ error: 'The assessment was not saved. Try again when the database is available.' });
   }
 });
 

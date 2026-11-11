@@ -3,23 +3,26 @@ import { config } from '../config.js';
 // Restaurant analogy: the outside supplier. LangChain's ChatGoogle talks to Gemini.
 // The key is read here, on the server, and never sent to the browser.
 
-let model = null;
+const models = new Map();
 
-export async function getModel() {
+// Chat calls getModel() and keep config.temperature. Analyze may pass a lower one.
+export async function getModel(options = {}) {
   if (!config.geminiApiKey) {
     throw new Error('No GEMINI_API_KEY. Add it in Replit Secrets (or your .env file).');
   }
-  if (!model) {
+  const temperature = options.temperature ?? config.temperature;
+  const cacheKey = `${config.model}::${temperature}`;
+  if (!models.has(cacheKey)) {
     // Loaded only when needed, so the app still starts in mock mode.
     const { ChatGoogle } = await import('@langchain/google/node');
-    model = new ChatGoogle({
+    models.set(cacheKey, new ChatGoogle({
       model: config.model,
       apiKey: config.geminiApiKey,
-      temperature: config.temperature,
+      temperature,
       maxOutputTokens: config.maxOutputTokens,
-    });
+    }));
   }
-  return model;
+  return models.get(cacheKey);
 }
 
 // Turn provider errors into messages a student can act on.
