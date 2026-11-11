@@ -94,5 +94,16 @@ export const AnalyzeAssessment = z
     }
   });
 
+const FEEDBACK_MESSAGE = 'Choose yes or no for an existing check.';
+
+// POST /api/feedback body. id must be a JSON number, not a numeric string.
+export const FeedbackRequest = z.object({
+  id: z
+    .number({ required_error: FEEDBACK_MESSAGE, invalid_type_error: FEEDBACK_MESSAGE })
+    .int(FEEDBACK_MESSAGE)
+    .positive(FEEDBACK_MESSAGE),
+  helpful: z.boolean({ required_error: FEEDBACK_MESSAGE, invalid_type_error: FEEDBACK_MESSAGE }),
+});
+
 // Turn zod's error into one friendly sentence.
 export const firstError = (result) => result.error.issues[0]?.message ?? 'Invalid request.';

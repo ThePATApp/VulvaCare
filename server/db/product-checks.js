@@ -12,6 +12,12 @@ VALUES
   ($1, $2, $3, $4, $5, $6::jsonb, $7)
 RETURNING id`;
 
+const UPDATE_SURVEY_ANSWER = `
+UPDATE product_checks
+   SET survey_answer = $2
+ WHERE id = $1
+RETURNING id, survey_answer`;
+
 const defaultStore = { rows: [], nextId: 1 };
 
 export async function saveProductCheck(check, options = {}) {
@@ -62,6 +68,40 @@ function remember(store, check) {
     response_time_ms: check.responseTimeMs ?? null,
   });
   return id;
+}
+
+export async function saveProductFeedback({ id, helpful }, options = {}) {
+  const databaseConfigured = options.hasDatabase ?? hasDatabase;
+  const production = options.isProduction ?? config.isProduction;
+  const queryFn = options.query ?? query;
+  const store = options.store ?? defaultStore;
+  const surveyAnswer = helpful ? 'yes' : 'no';
+
+  if (production && !databaseConfigured) {
+    throw feedbackError('Could not save feedback.', 'FEEDBACK_DB');
+  }
+
+  if (!databaseConfigured) {
+    const row = store.rows.find((item) => item.id === id);
+    if (!row) throw feedbackError('No matching check was found.', 'FEEDBACK_NOT_FOUND');
+    row.survey_answer = surveyAnswer;
+    return { id: row.id, helpful };
+  }
+
+  let rows;
+  try {
+    ({ rows } = await queryFn(UPDATE_SURVEY_ANSWER, [id, surveyAnswer]));
+  } catch {
+    throw feedbackError('Could not save feedback.', 'FEEDBACK_DB');
+  }
+  if (!rows?.[0]) throw feedbackError('No matching check was found.', 'FEEDBACK_NOT_FOUND');
+  return { id: toJsonId(rows[0].id), helpful: rows[0].survey_answer === 'yes' };
+}
+
+function feedbackError(message, code) {
+  const err = new Error(message);
+  err.code = code;
+  return err;
 }
 
 function toJsonId(id) {

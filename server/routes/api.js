@@ -2,12 +2,13 @@ import { Router } from 'express';
 import { aiMode, config } from '../config.js';
 import { hasDatabase } from '../db/pool.js';
 import { CATEGORIES } from '../db/seed-data.js';
+import { saveProductFeedback } from '../db/product-checks.js';
 import { addResource, listResources } from '../db/resources.js';
 import { runAgent } from '../agent/agent.js';
 import { loadSkills } from '../agent/skills.js';
 import { friendlyAiError } from '../ai/model.js';
 import { analyzeProduct } from '../analyze.js';
-import { ChatRequest, NewResource, ResourceQuery, firstError } from '../validation.js';
+import { ChatRequest, FeedbackRequest, NewResource, ResourceQuery, firstError } from '../validation.js';
 
 // Restaurant analogy: the waiter's routes. Every path here starts with /api.
 export const api = Router();
@@ -64,6 +65,25 @@ api.post('/analyze', async (req, res) => {
   } catch {
     console.error('[analyze] unexpected failure');
     res.status(500).json({ error: 'The assessment was not saved. Try again when the database is available.' });
+  }
+});
+
+// POST /api/feedback: Yes/No on a saved product check.
+api.post('/feedback', async (req, res) => {
+  const parsed = FeedbackRequest.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: firstError(parsed) });
+    return;
+  }
+  try {
+    res.json(await saveProductFeedback(parsed.data));
+  } catch (err) {
+    if (err.code === 'FEEDBACK_NOT_FOUND') {
+      res.status(404).json({ error: 'No matching check was found.' });
+      return;
+    }
+    console.error('[feedback] save failed');
+    res.status(500).json({ error: 'Could not save feedback.' });
   }
 });
 
