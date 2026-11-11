@@ -14,26 +14,19 @@ export function SiteHeader() {
   );
 }
 
-export function Hero() {
+export function Hero({ children }) {
   return (
-    <section className="vc-hero" aria-labelledby="hero-heading">
+    <div className="vc-hero">
       <SiteHeader />
-      <div className="vc-hero-grid">
+      <section className="vc-hero-grid" aria-labelledby="hero-heading">
         <p className="vc-eyebrow">INGREDIENT TRANSPARENCY, MADE SIMPLE.</p>
         <h1 id="hero-heading">Know what touches your most intimate skin.</h1>
         <p className="vc-hero-lede">
-          Understand the ingredients in your intimate care products with clear, AI-powered insights.
+          Understand the ingredients in your intimate care products with clear, <span className="vc-nowrap">AI-powered</span> insights.
         </p>
-        <div className="vc-hero-art">
-          <img
-            src="/images/hero.png"
-            alt="Smiling woman in VulvaCare hero artwork"
-            width="1600"
-            height="1200"
-          />
-        </div>
-      </div>
-    </section>
+      </section>
+      {children}
+    </div>
   );
 }
 
