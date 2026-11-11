@@ -28,8 +28,8 @@ export function Hero() {
           <img
             src="/images/hero.png"
             alt="Smiling woman in VulvaCare hero artwork"
-            width="1122"
-            height="1402"
+            width="1600"
+            height="1200"
           />
         </div>
       </div>

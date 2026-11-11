@@ -73,14 +73,18 @@ body:has(.vc) {
 }
 
 .vc-hero {
+  position: relative;
   background: #8537E7;
   color: #fff;
   padding: 12px 16px 0;
+  isolation: isolate;
 }
 
 .vc-header {
+  position: relative;
+  z-index: 2;
   max-width: var(--max);
-  margin: 0 auto 8px;
+  margin: 0 auto 6px;
 }
 
 .vc-logo-wrap {
@@ -101,21 +105,29 @@ body:has(.vc) {
 }
 
 .vc-hero-grid {
+  position: relative;
+  z-index: 1;
   max-width: var(--max);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    "eyebrow"
-    "title"
-    "lede"
-    "art";
+  align-content: start;
   row-gap: 8px;
+  min-height: clamp(280px, 88vw, 520px);
+  padding-bottom: 12px;
+}
+
+.vc-eyebrow,
+.vc-hero h1,
+.vc-hero-lede {
+  position: relative;
+  z-index: 1;
+  justify-self: start;
+  text-align: left;
 }
 
 .vc-eyebrow {
-  grid-area: eyebrow;
   margin: 0;
+  max-width: 24rem;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -124,27 +136,29 @@ body:has(.vc) {
 }
 
 .vc-hero h1 {
-  grid-area: title;
   color: #fff;
-  font-size: clamp(28px, 6.6vw, 56px);
+  font-size: clamp(26px, 7.2vw, 56px);
   font-weight: 750;
-  max-width: 18ch;
+  line-height: 1.08;
+  max-width: min(68%, 11em);
 }
 
 .vc-hero-lede {
-  grid-area: lede;
   margin: 0;
-  max-width: 40rem;
-  font-size: clamp(15px, 3.6vw, 20px);
+  max-width: min(64%, 24rem);
+  font-size: clamp(15px, 3.5vw, 20px);
   line-height: 1.4;
   color: #fff;
 }
 
 .vc-hero-art {
-  grid-area: art;
-  justify-self: end;
-  width: min(72%, 280px);
-  margin-top: 2px;
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  bottom: 0;
+  width: min(100%, 640px);
+  margin: 0;
+  pointer-events: none;
 }
 
 .vc-hero-art img {
@@ -164,7 +178,7 @@ body:has(.vc) {
 .vc-checker {
   position: relative;
   z-index: 1;
-  margin-top: -128px;
+  margin-top: clamp(-132px, -18vw, -72px);
   scroll-margin-top: 16px;
 }
 
@@ -182,11 +196,13 @@ body:has(.vc) {
 }
 
 .vc-checker-card {
-  padding: 16px 16px 18px;
-  background: rgba(255, 252, 248, 0.96);
+  padding: 14px 16px 16px;
+  background: rgba(255, 252, 248, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid #eadff8;
   border-radius: 20px;
-  box-shadow: 0 12px 32px rgba(52, 49, 58, 0.12);
+  box-shadow: 0 14px 34px rgba(52, 49, 58, 0.12);
 }
 
 .vc-checker h2,
@@ -207,8 +223,8 @@ body:has(.vc) {
 
 .vc-checker form {
   display: grid;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .vc-checker label {
@@ -298,7 +314,7 @@ body:has(.vc) {
 }
 
 .vc .vc-btn-primary:hover:not(:disabled) {
-  background: #9A52EF;
+  background: #D1108D;
 }
 
 .vc .vc-btn-primary:active:not(:disabled) {
@@ -589,9 +605,23 @@ body:has(.vc) {
   font-size: 16px;
 }
 
+@media (max-width: 380px) {
+  .vc-hero-grid {
+    min-height: 348px;
+  }
+
+  .vc-hero h1 {
+    max-width: min(66%, 10em);
+  }
+
+  .vc-hero-lede {
+    max-width: min(62%, 16rem);
+  }
+}
+
 @media (min-width: 768px) {
   .vc-hero {
-    padding: 20px 32px 28px;
+    padding: 20px 32px 0;
   }
 
   .vc-header {
@@ -599,33 +629,22 @@ body:has(.vc) {
   }
 
   .vc-hero-grid {
-    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 340px);
-    grid-template-areas:
-      "eyebrow art"
-      "title art"
-      "lede art";
-    align-items: end;
-    column-gap: 28px;
+    min-height: clamp(520px, 56vw, 640px);
     row-gap: 10px;
   }
 
-  .vc-hero h1 {
-    max-width: 16ch;
+  .vc-eyebrow,
+  .vc-hero-lede {
+    max-width: min(46%, 28rem);
   }
 
-  .vc-hero-lede {
-    max-width: 36rem;
+  .vc-hero h1 {
+    max-width: min(46%, 12em);
   }
 
   .vc-hero-art {
-    width: auto;
-    align-self: end;
-    margin-top: 0;
-  }
-
-  .vc-hero-art img {
-    width: min(100%, 340px);
-    margin-left: auto;
+    width: min(52%, 640px);
+    right: 0;
   }
 
   .vc main {
@@ -633,7 +652,7 @@ body:has(.vc) {
   }
 
   .vc-checker {
-    margin-top: -88px;
+    margin-top: -80px;
   }
 
   .vc-checker-card {
@@ -657,8 +676,8 @@ body:has(.vc) {
 }
 
 @media (min-width: 1024px) {
-  .vc-hero-art img {
-    width: min(100%, 360px);
+  .vc-hero-art {
+    width: min(48%, 680px);
   }
 }
 
