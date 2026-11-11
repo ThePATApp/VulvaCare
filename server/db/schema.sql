@@ -30,10 +30,16 @@ CREATE TABLE IF NOT EXISTS chat_logs (
 
 CREATE INDEX IF NOT EXISTS resources_category_idx ON resources (category);
 
--- TODO (your team): add a table for your project here, for example:
--- CREATE TABLE IF NOT EXISTS volunteer_signups (
---   id SERIAL PRIMARY KEY,
---   first_name TEXT NOT NULL,
---   shift TEXT NOT NULL,
---   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
--- );
+-- One educational product check. user_input is the redacted text only.
+CREATE TABLE IF NOT EXISTS product_checks (
+  id                  BIGSERIAL PRIMARY KEY,
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  input_type          VARCHAR(20) NOT NULL,
+  user_input          TEXT NOT NULL,
+  result              VARCHAR(20) NOT NULL,
+  headline            TEXT NOT NULL,
+  explanation         TEXT NOT NULL,
+  flagged_ingredients JSONB NOT NULL DEFAULT '[]'::jsonb,
+  survey_answer       VARCHAR(10),
+  response_time_ms    INTEGER
+);
