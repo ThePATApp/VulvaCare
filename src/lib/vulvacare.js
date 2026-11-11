@@ -121,6 +121,9 @@ export function checkerReducer(state, action) {
         result: action.result,
         error: '',
         crisisMessage: '',
+        originalInput: typeof action.result?.originalInput === 'string'
+          ? action.result.originalInput
+          : state.originalInput,
       };
     case 'analyze_crisis':
       return {

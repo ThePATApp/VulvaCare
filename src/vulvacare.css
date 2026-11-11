@@ -45,7 +45,9 @@
 
 .vc button,
 .vc textarea {
-  font: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .vc .sr-only {
@@ -73,12 +75,12 @@ body:has(.vc) {
 .vc-hero {
   background: #8537E7;
   color: #fff;
-  padding: 16px 20px 40px;
+  padding: 12px 16px 0;
 }
 
 .vc-header {
   max-width: var(--max);
-  margin: 0 auto 20px;
+  margin: 0 auto 8px;
 }
 
 .vc-logo-wrap {
@@ -86,14 +88,14 @@ body:has(.vc) {
   align-items: center;
   background: #fff;
   border-radius: 16px;
-  padding: 8px 14px;
-  max-width: min(100%, 320px);
+  padding: 6px 12px;
+  max-width: min(100%, 360px);
 }
 
 .vc-logo {
   display: block;
   width: auto;
-  height: clamp(36px, 9vw, 56px);
+  height: clamp(42px, 10.4vw, 64px);
   max-width: 100%;
   object-fit: contain;
 }
@@ -102,18 +104,18 @@ body:has(.vc) {
   max-width: var(--max);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: end;
-}
-
-.vc-hero-copy {
-  min-width: 0;
-  padding-bottom: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "eyebrow"
+    "title"
+    "lede"
+    "art";
+  row-gap: 8px;
 }
 
 .vc-eyebrow {
-  margin: 0 0 12px;
+  grid-area: eyebrow;
+  margin: 0;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -122,43 +124,47 @@ body:has(.vc) {
 }
 
 .vc-hero h1 {
+  grid-area: title;
   color: #fff;
-  font-size: clamp(32px, 8vw, 56px);
+  font-size: clamp(28px, 6.6vw, 56px);
   font-weight: 750;
-  max-width: 16ch;
+  max-width: 18ch;
 }
 
 .vc-hero-lede {
-  margin-top: 16px;
-  font-size: clamp(16px, 2.4vw, 20px);
-  line-height: 1.45;
+  grid-area: lede;
+  margin: 0;
+  max-width: 40rem;
+  font-size: clamp(15px, 3.6vw, 20px);
+  line-height: 1.4;
   color: #fff;
-  max-width: 38ch;
 }
 
 .vc-hero-art {
-  min-width: 0;
-  display: flex;
-  justify-content: center;
+  grid-area: art;
+  justify-self: end;
+  width: min(72%, 280px);
+  margin-top: 2px;
 }
 
 .vc-hero-art img {
   display: block;
-  width: min(100%, 420px);
+  width: 100%;
   height: auto;
-  max-height: min(62vh, 520px);
   object-fit: contain;
-  object-position: center bottom;
+  object-position: right bottom;
 }
 
 .vc main {
   max-width: var(--narrow);
   margin: 0 auto;
-  padding: 0 20px 48px;
+  padding: 0 16px 40px;
 }
 
 .vc-checker {
-  margin-top: -28px;
+  position: relative;
+  z-index: 1;
+  margin-top: -128px;
   scroll-margin-top: 16px;
 }
 
@@ -166,7 +172,6 @@ body:has(.vc) {
 .vc-original,
 .vc-result-card,
 .vc-note,
-.vc-feedback,
 .vc-crisis,
 .vc-closing {
   background: #fff;
@@ -177,7 +182,11 @@ body:has(.vc) {
 }
 
 .vc-checker-card {
-  box-shadow: 0 10px 30px rgba(52, 49, 58, 0.08);
+  padding: 16px 16px 18px;
+  background: rgba(255, 252, 248, 0.96);
+  border: 1px solid #eadff8;
+  border-radius: 20px;
+  box-shadow: 0 12px 32px rgba(52, 49, 58, 0.12);
 }
 
 .vc-checker h2,
@@ -191,15 +200,15 @@ body:has(.vc) {
 .vc-lede,
 .vc-feedback p,
 .vc-closing p {
-  margin-top: 10px;
+  margin-top: 6px;
   color: #4d4954;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .vc-checker form {
   display: grid;
-  gap: 12px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .vc-checker label {
@@ -207,24 +216,37 @@ body:has(.vc) {
   font-size: 14px;
 }
 
-.vc-checker textarea {
+.vc .vc-checker textarea,
+.vc .vc-checker textarea:hover,
+.vc .vc-checker textarea:focus,
+.vc .vc-checker textarea:focus-visible,
+.vc .vc-checker textarea:active {
   width: 100%;
-  min-height: 148px;
+  min-height: 92px;
   resize: vertical;
   border: 1px solid #d7c8ee;
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   background: #fff;
   color: var(--charcoal);
   line-height: 1.45;
   overflow-wrap: anywhere;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
-.vc-checker textarea:focus,
-.vc-btn:focus-visible,
-.vc-text-btn:focus-visible {
+.vc .vc-checker textarea::placeholder {
+  color: #6b6572;
+  opacity: 1;
+}
+
+.vc .vc-checker textarea:focus,
+.vc .vc-checker textarea:focus-visible,
+.vc .vc-btn:focus-visible,
+.vc .vc-text-btn:focus-visible {
   outline: 3px solid #8537E7;
   outline-offset: 2px;
+  border-color: #8537E7;
 }
 
 .vc-hint {
@@ -237,7 +259,11 @@ body:has(.vc) {
   font-weight: 650;
 }
 
-.vc-btn {
+.vc .vc-btn,
+.vc .vc-btn:hover,
+.vc .vc-btn:active,
+.vc .vc-btn:focus,
+.vc .vc-btn:focus-visible {
   border: 0;
   border-radius: 12px;
   min-height: 48px;
@@ -248,46 +274,92 @@ body:has(.vc) {
   align-items: center;
   justify-content: center;
   text-align: center;
+  filter: none;
 }
 
-.vc-btn:disabled {
+.vc .vc-btn:disabled,
+.vc .vc-btn:disabled:hover,
+.vc .vc-btn:disabled:active {
   opacity: 0.6;
   cursor: wait;
+  filter: none;
 }
 
-.vc-btn-primary {
+.vc .vc-btn-primary,
+.vc .vc-btn-primary:hover,
+.vc .vc-btn-primary:active,
+.vc .vc-btn-primary:focus,
+.vc .vc-btn-primary:focus-visible,
+.vc .vc-btn-primary:disabled,
+.vc .vc-btn-primary:disabled:hover {
   background: #8537E7;
   color: #fff;
   width: 100%;
 }
 
-.vc-btn-primary:hover:not(:disabled) {
-  background: #8537E7;
-  filter: saturate(1.08);
+.vc .vc-btn-primary:hover:not(:disabled) {
+  background: #9A52EF;
 }
 
-.vc-btn-outline {
+.vc .vc-btn-primary:active:not(:disabled) {
+  background: #D1108D;
+}
+
+.vc .vc-btn-outline,
+.vc .vc-btn-outline:hover,
+.vc .vc-btn-outline:active,
+.vc .vc-btn-outline:focus,
+.vc .vc-btn-outline:focus-visible,
+.vc .vc-btn-outline:disabled,
+.vc .vc-btn-outline:disabled:hover {
   background: #fff;
   color: #8537E7;
   border: 2px solid #8537E7;
   min-width: 96px;
 }
 
-.vc-btn-outline.is-selected {
+.vc .vc-btn-outline:hover:not(:disabled) {
   background: #F3EAFF;
+  color: #8537E7;
 }
 
-.vc-text-btn {
+.vc .vc-btn-outline:active:not(:disabled) {
+  background: #F3EAFF;
+  color: #D1108D;
+  border-color: #D1108D;
+}
+
+.vc .vc-btn-outline.is-selected,
+.vc .vc-btn-outline.is-selected:hover,
+.vc .vc-btn-outline.is-selected:active,
+.vc .vc-btn-outline.is-selected:focus,
+.vc .vc-btn-outline.is-selected:focus-visible {
+  background: #8537E7;
+  color: #fff;
+  border-color: #8537E7;
+}
+
+.vc .vc-text-btn,
+.vc .vc-text-btn:hover,
+.vc .vc-text-btn:active,
+.vc .vc-text-btn:focus,
+.vc .vc-text-btn:focus-visible {
   margin-top: 10px;
   padding: 8px 0;
   min-height: 44px;
-  background: none;
+  background: transparent;
   border: 0;
   color: #8537E7;
   font-weight: 700;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
+  filter: none;
+}
+
+.vc .vc-text-btn:hover,
+.vc .vc-text-btn:active {
+  color: #D1108D;
 }
 
 .vc-results {
@@ -435,11 +507,31 @@ body:has(.vc) {
   line-height: 1.5;
 }
 
+.vc-feedback {
+  padding: 8px 4px 0;
+  text-align: center;
+  background: transparent;
+  border: 0;
+}
+
+.vc-feedback h2,
+.vc-feedback p,
+.vc-feedback-status {
+  text-align: center;
+}
+
 .vc-feedback-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: min(100%, 420px);
+  margin: 14px auto 0;
+}
+
+.vc-feedback-actions .vc-btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
 }
 
 .vc-feedback-status {
@@ -457,6 +549,9 @@ body:has(.vc) {
 
 .vc-reset {
   width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  font-weight: 600;
 }
 
 .vc-crisis {
@@ -496,39 +591,74 @@ body:has(.vc) {
 
 @media (min-width: 768px) {
   .vc-hero {
-    padding: 22px 32px 48px;
+    padding: 20px 32px 28px;
+  }
+
+  .vc-header {
+    margin-bottom: 12px;
   }
 
   .vc-hero-grid {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    align-items: center;
-    gap: 32px;
+    grid-template-columns: minmax(0, 1.2fr) minmax(240px, 340px);
+    grid-template-areas:
+      "eyebrow art"
+      "title art"
+      "lede art";
+    align-items: end;
+    column-gap: 28px;
+    row-gap: 10px;
+  }
+
+  .vc-hero h1 {
+    max-width: 16ch;
+  }
+
+  .vc-hero-lede {
+    max-width: 36rem;
   }
 
   .vc-hero-art {
-    justify-content: flex-end;
+    width: auto;
+    align-self: end;
+    margin-top: 0;
   }
 
   .vc-hero-art img {
-    width: min(100%, 480px);
-    max-height: min(70vh, 620px);
+    width: min(100%, 340px);
+    margin-left: auto;
   }
 
-  .vc-btn-primary {
+  .vc main {
+    padding-inline: 24px;
+  }
+
+  .vc-checker {
+    margin-top: -88px;
+  }
+
+  .vc-checker-card {
+    padding: 22px 22px 24px;
+  }
+
+  .vc-checker form {
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .vc-checker textarea {
+    min-height: 112px;
+  }
+
+  .vc .vc-btn-primary {
     width: auto;
     justify-self: start;
     min-width: 220px;
   }
-
-  .vc-reset {
-    width: auto;
-    justify-self: start;
-  }
 }
 
 @media (min-width: 1024px) {
-  .vc-hero-copy {
-    padding-right: 24px;
+  .vc-hero-art img {
+    width: min(100%, 360px);
   }
 }
 

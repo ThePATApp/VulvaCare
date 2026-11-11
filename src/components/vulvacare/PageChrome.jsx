@@ -19,13 +19,11 @@ export function Hero() {
     <section className="vc-hero" aria-labelledby="hero-heading">
       <SiteHeader />
       <div className="vc-hero-grid">
-        <div className="vc-hero-copy">
-          <p className="vc-eyebrow">INGREDIENT TRANSPARENCY, MADE SIMPLE.</p>
-          <h1 id="hero-heading">Know what touches your most intimate skin.</h1>
-          <p className="vc-hero-lede">
-            Understand the ingredients in your intimate care products with clear, AI-powered insights.
-          </p>
-        </div>
+        <p className="vc-eyebrow">INGREDIENT TRANSPARENCY, MADE SIMPLE.</p>
+        <h1 id="hero-heading">Know what touches your most intimate skin.</h1>
+        <p className="vc-hero-lede">
+          Understand the ingredients in your intimate care products with clear, AI-powered insights.
+        </p>
         <div className="vc-hero-art">
           <img
             src="/images/hero.png"

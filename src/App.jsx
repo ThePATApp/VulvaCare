@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react';
 import { api } from './api.js';
+import { mockAnalyze } from './lib/mockAnalyze.js';
 import ProductChecker from './components/vulvacare/ProductChecker.jsx';
 import OriginalInput from './components/vulvacare/OriginalInput.jsx';
 import { EducationalNote, FeedbackPanel, ResultCard } from './components/vulvacare/ResultCard.jsx';
@@ -42,9 +43,12 @@ export default function App() {
     dispatch({ type: 'analyze_start', originalInput, inputType });
 
     try {
-      const data = await api.analyze({
+      // Frontend-only milestone. Swap mockAnalyze for api.analyze when
+      // POST /api/analyze is connected. Pass the raw draft so the mock can
+      // echo it; validation only rejects blank or oversized input.
+      const data = await mockAnalyze({
         inputType,
-        userInput: validation.userInput,
+        userInput: originalInput,
       });
       if (requestId !== requestIdRef.current) return;
 
@@ -56,7 +60,10 @@ export default function App() {
         return;
       }
 
-      if (typeof data?.id !== 'number' || !data.status || !data.headline || !data.explanation) {
+      const hasAssessment = Boolean(data?.status && data.headline && data.explanation);
+      const saved = typeof data?.id === 'number';
+      const mockSample = !saved && typeof data?.originalInput === 'string';
+      if (!hasAssessment || (!saved && !mockSample)) {
         dispatch({
           type: 'analyze_error',
           error: 'The assessment was incomplete. Please try again.',

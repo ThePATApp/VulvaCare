@@ -11,6 +11,7 @@ import {
   validateUserInput,
 } from '../src/lib/vulvacare.js';
 import { api } from '../src/api.js';
+import { MOCK_ASSESSMENT, mockAnalyze } from '../src/lib/mockAnalyze.js';
 
 const SAMPLE_14 = `Rayon
 Purified cotton
@@ -109,6 +110,82 @@ test('loading, error, success, feedback, and reset states clear stale results', 
   assert.deepEqual(state, initialCheckerState);
   assert.equal(state.draft, '');
   assert.equal(state.inputExpanded, false);
+});
+
+test('mock analyze echoes the exact submission and a fixed unknown sample', async () => {
+  const originalFetch = globalThis.fetch;
+  let fetchCalls = 0;
+  globalThis.fetch = async () => {
+    fetchCalls += 1;
+    throw new Error('mock analyze must not call the network');
+  };
+
+  const product = 'Example Product';
+  const ingredients = 'Water, Glycerin, Fragrance';
+  const longList = `${SAMPLE_14}\n${'A very long ingredient name that should stay intact, '.repeat(8)}`;
+  const padded = '  Example Product  \n';
+
+  try {
+    const productResult = await mockAnalyze({ userInput: product, inputType: 'product' }, { delayMs: 0 });
+    assert.equal(productResult.originalInput, product);
+    assert.equal(productResult.status, 'unknown');
+    assert.equal(productResult.headline, MOCK_ASSESSMENT.headline);
+    assert.equal(productResult.explanation, MOCK_ASSESSMENT.explanation);
+    assert.deepEqual(productResult.flaggedIngredients, []);
+
+    const listResult = await mockAnalyze({ userInput: ingredients, inputType: 'ingredients' }, { delayMs: 0 });
+    assert.equal(listResult.originalInput, ingredients);
+
+    const multiline = await mockAnalyze({ userInput: SAMPLE_14, inputType: 'ingredients' }, { delayMs: 0 });
+    assert.equal(multiline.originalInput, SAMPLE_14);
+
+    const longer = await mockAnalyze({ userInput: longList, inputType: 'ingredients' }, { delayMs: 0 });
+    assert.equal(longer.originalInput, longList);
+
+    const exact = await mockAnalyze({ userInput: padded, inputType: 'product' }, { delayMs: 0 });
+    assert.equal(exact.originalInput, padded);
+    assert.equal(fetchCalls, 0);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('whitespace-only input is rejected before a mock request', () => {
+  assert.equal(validateUserInput('').ok, false);
+  assert.equal(validateUserInput('   \n\t  ').ok, false);
+  const kept = '  Example Product';
+  const validation = validateUserInput(kept);
+  assert.equal(validation.ok, true);
+  assert.notEqual(validation.userInput, kept);
+});
+
+test('a mock success keeps the echoed original text and reset clears it', () => {
+  let state = checkerReducer(initialCheckerState, { type: 'set_draft', draft: SAMPLE_14 });
+  state = checkerReducer(state, {
+    type: 'analyze_start',
+    originalInput: SAMPLE_14,
+    inputType: 'ingredients',
+  });
+  state = checkerReducer(state, { type: 'set_expanded', expanded: true });
+  state = checkerReducer(state, {
+    type: 'analyze_success',
+    result: {
+      originalInput: SAMPLE_14,
+      status: 'unknown',
+      headline: 'Mock assessment',
+      explanation: MOCK_ASSESSMENT.explanation,
+      flaggedIngredients: [],
+    },
+  });
+  assert.equal(state.originalInput, SAMPLE_14);
+  assert.equal(state.inputExpanded, true);
+
+  state = checkerReducer(state, { type: 'reset' });
+  assert.equal(state.draft, '');
+  assert.equal(state.originalInput, '');
+  assert.equal(state.result, null);
+  assert.equal(state.inputExpanded, false);
+  assert.equal(state.phase, 'idle');
 });
 
 test('analyze and feedback helpers post the documented JSON bodies', async () => {

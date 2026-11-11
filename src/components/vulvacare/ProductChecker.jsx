@@ -26,7 +26,7 @@ export default function ProductChecker({
             id="product-input"
             ref={inputRef}
             name="userInput"
-            rows={6}
+            rows={3}
             value={draft}
             onChange={(event) => onDraftChange(event.target.value)}
             placeholder="Enter a product name or paste ingredients..."
